@@ -21,7 +21,7 @@ set -e
 
 ci-build=\`which ci-build\`
 
-. \`dirname \$ci-build\`/ci-util.lib
+. \`dirname \$ci-build\`/gitlab-ci-util.lib
 . \`dirname \$0\`/config
 
 standard_build
@@ -33,7 +33,7 @@ set -e
 
 ci-build=\`which ci-build\`
 
-. \`dirname \$ci-build\`/ci-util.lib
+. \`dirname \$ci-build\`/gitlab-ci-util.lib
 . \`dirname \$0\`/config
 
 # write your test here
