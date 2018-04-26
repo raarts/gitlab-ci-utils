@@ -2,5 +2,11 @@
 #
 # Installs these scripts into accessible locations
 
-mkdir -p ~/bin
-cp bin/* ~/bin
+if [ `id -u` -eq 0 ]
+then
+  cp bin/* /usr/local/bin
+else
+  mkdir -p ~/bin
+  cp bin/* ~/bin
+fi
+
