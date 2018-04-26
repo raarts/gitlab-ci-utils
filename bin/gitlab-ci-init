@@ -12,7 +12,7 @@ cat << _EOF_ > gitlab-ci/config
 me=$me
 deps=
 from=alpine
-fromlabel=3.7
+fromtag=3.7
 _EOF_
 
 cat << _EOF_ > gitlab-ci/build
