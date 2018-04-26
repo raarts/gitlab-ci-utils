@@ -8,5 +8,11 @@ then
 else
   mkdir -p ~/bin
   cp bin/* ~/bin
+
+  CI_BUILD=`which gitlab-ci-build`
+  if [ -z "$CI_BUILD" ]
+  then
+    echo "ERROR. Installed scripts into ~/bin, but ~/bin is not in your PATH"
+  fi
 fi
 
