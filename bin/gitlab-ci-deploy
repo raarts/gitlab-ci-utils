@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+for service in $*
+do
+  cd $service
+  [ -x gitlab-ci/deploy ] && gitlab-ci/deploy $service $ENV
+  cd ..
+done
+

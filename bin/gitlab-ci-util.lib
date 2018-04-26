@@ -1,0 +1,71 @@
+# utility function for GitLab CI build scripts
+
+dir_contents_changed() {
+  for arg
+  do
+    # if the git exit-code is > 0 the tree changed. But in bash zero means true, hence the '!'
+    if ! git diff-tree --quiet --exit-code HEAD^:"$arg" HEAD:"$arg"
+    then
+      echo "$arg changed"
+      return 0    # true
+    fi
+  done
+  echo "Nothing changed in" "$@"
+  return 1   # false
+}
+
+# expects to be run from the same directory where the Dockerfile resides
+standard_build() {
+  me=""
+  deps=""
+  from=""
+  fromtag=""
+
+  . gitlab-ci/config
+
+  if [ -z "$fromtag" ]
+  then
+    fromtag=$CI_COMMIT_REF_NAME
+  fi
+
+  if [ -z "$CI_PROJECT_NAME" ]
+  then
+    # run by hand from the command line - just rebuild
+    echo "manually rebuilding $me.."
+    IMAGE=$LOGNAME/$me:$CI_COMMIT_REF_NAME
+    if docker image inspect $LOGNAME/$from:$fromtag >/dev/null 2>&1
+    then
+      FROM=$LOGNAME/$from:$fromtag
+    else
+      FROM=$from:$fromtag
+    fi
+    docker build  --build-arg FROM=$FROM -t $IMAGE .
+    exit $?
+  fi
+
+  # ok, now check if we need to rebuild this image
+  IMAGE=$CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/$me:$CI_COMMIT_REF_NAME
+
+  if ! gitlab-image-exists -u gitlab-ci-token -p $CI_JOB_TOKEN $IMAGE || dir_contents_changed $me $deps
+  then
+    echo "$me changed - rebuilding.."
+    if [ `basename $from:$fromtag` == "$from:$fromtag" ]
+    then
+      FROM=$CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/$from:$fromtag
+    else 
+      FROM=$from:$fromtag
+    fi
+    docker build  --build-arg FROM=$FROM -t $IMAGE .
+    docker push $IMAGE
+  else
+    echo "not rebuilding $me - nothing changed"
+  fi
+}
+
+if [ -z "$CI_COMMIT_REF_NAME" ]
+then
+  CI_COMMIT_REF_NAME=`git symbolic-ref --short HEAD`
+fi
+
+GITROOT=`r=$(git rev-parse --git-dir) && r=$(cd "$r" && pwd)/ && echo "${r%%/.git/*}"`
+

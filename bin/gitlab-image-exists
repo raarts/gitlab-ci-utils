@@ -1,0 +1,91 @@
+#!/usr/bin/env python
+#
+# To detect if a docker image exists in the repo, so if it's not
+# there the pipeline can build it.
+
+import os, sys, argparse, logging as log
+import requests
+import json
+
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+try:
+  # python 3
+  from urllib.parse import urlparse, quote
+except ImportError:
+  # python 2
+  from urlparse import urlparse
+  from urllib import quote
+
+
+# main module. 
+def main(args, loglevel):
+  log.basicConfig(format="%(filename)s[%(lineno)d]: %(levelname)s %(message)s", level=loglevel, stream=sys.stdout)
+  
+  log.info('program start')
+
+  # normalize the image url
+  url = args.argument
+  if url[0:4] != 'http':
+    url = 'https://' + url
+
+  o = urlparse(url)
+  scheme = o.scheme
+  netloc = o.netloc
+  path = o.path[1:]
+  (basepath, tag) = path.split(':')
+
+  v2url =  scheme + '://' + netloc + '/v2/'
+  log.info('get auth server url using: ' + v2url)
+  r = requests.get(v2url, auth=(args.username, args.password), verify=False)
+  auth_header = r.headers['Www-Authenticate']  # Bearer realm="https://git.xxxxxxxxxx.com/jwt/auth",service="container_registry"
+  realm = auth_header.split('"')[1]
+
+  authurl = realm + '?account=' + quote(args.username) + '&scope=' + quote('repository:' + basepath + ':pull') + '&service=container_registry'
+  log.info('get token using: ' + authurl)
+  r = requests.get(authurl, auth=(args.username, args.password), verify=False)
+  token = r.json()['token']
+
+  repourl = v2url + basepath + '/manifests/' + tag
+  headers = {
+    'Accept': 'application/json',
+    'Accept': 'application/vnd.docker.distribution.manifest.v2+json',
+    'Accept': 'application/vnd.docker.distribution.manifest.list.v2+json',
+    'Accept': 'application/vnd.docker.distribution.manifest.v1+prettyjws',
+    'Authorization': 'Bearer ' + token
+  }
+  log.info('get image manifests from: ' + repourl)
+  r = requests.get(repourl, verify=False, headers=headers)
+  log.info('Done')
+  if r.status_code != 200:
+    log.warn('image ' + args.argument + ' not found')
+    exit(1)
+  image = r.json()
+  if loglevel <= log.WARN:
+    print('name: %s' % image['name'])
+    print('tag: %s' % image['tag'])
+    print('architecture: %s' % image['architecture'])
+  exit(0)
+
+
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser( 
+           description = "check if the given docker image exists in the gitlab docker repo",
+           fromfile_prefix_chars = '@')
+  parser.add_argument( "argument", help = "the full image name, including repo", metavar = "imagename")
+  parser.add_argument( "-u", "--username", help="the username to login", required=True)
+  parser.add_argument( "-p", "--password", help="the password to login", required=True)
+  parser.add_argument( "-v", "--verbose", help="increase output verbosity", action="count")
+  args = parser.parse_args()
+  
+  loglevel = log.ERROR
+  if args.verbose:
+    if args.verbose > 0:
+      loglevel = log.WARNING
+    if args.verbose > 1:
+      loglevel = log.INFO
+    if args.verbose > 2:
+      loglevel = log.DEBUG
+  
+  main(args, loglevel)

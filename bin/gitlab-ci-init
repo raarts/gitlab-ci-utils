@@ -1,0 +1,42 @@
+#!/bin/sh
+set -x
+
+me=`basename $PWD`
+if [ -n "$1" ]
+then
+  me="$1"
+fi
+
+mkdir -p gitlab-ci
+cat << _EOF_ > gitlab-ci/config
+me=$me
+deps=
+from=alpine
+fromlabel=3.7
+_EOF_
+
+cat << _EOF_ > gitlab-ci/build
+#!/bin/sh
+set -e
+
+ci-build=\`which ci-build\`
+
+. \`dirname \$ci-build\`/ci-util.lib
+. \`dirname \$0\`/config
+
+standard_build
+_EOF_
+
+cat << _EOF_ > gitlab-ci/test
+#!/bin/sh
+set -e
+
+ci-build=\`which ci-build\`
+
+. \`dirname \$ci-build\`/ci-util.lib
+. \`dirname \$0\`/config
+
+# write your test here
+
+_EOF_
+

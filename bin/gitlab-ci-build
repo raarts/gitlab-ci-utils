@@ -1,0 +1,17 @@
+#!/bin/sh
+set -x
+
+. `dirname $0`/gitlab-ci-util.lib
+
+for service in $*
+do
+  cd $service
+  if [ -f gitlab-ci/config ]
+  then
+    standard_build 
+  else
+    gitlab-ci/build $service
+  fi
+  cd ..
+done
+

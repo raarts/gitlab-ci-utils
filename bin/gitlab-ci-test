@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+for service in $*
+do
+  cd $service
+  [ -x gitlab-ci/test ] && gitlab-ci/test $service
+  cd ..
+done
+

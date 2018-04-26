@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+
+if [ -z "$1" ]
+then
+  echo "Usage: $0 <name of the file where SSH_PRIVATE_KEY will be saved>"
+  exit 1
+fi
+  
+if [ -z "$SSH_PRIVATE_KEY" ]
+then
+  echo "No private SSH key configured - please set the secret variable SSH_PRIVATE_KEY in GitLab Project Settings Pipelines"
+  echo "This should be the SSH key which allows this pipeline access to the Swarm VMs (they should have the public key)"
+  exit 1
+fi
+
+KEYNAME=$1
+
+# install the private key
+echo "Installing SSH keys into $HOME"
+mkdir $HOME/.ssh
+chmod 700 $HOME/.ssh
+echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/$KEYNAME
+chmod 600 $HOME/.ssh/$KEYNAME
+echo "$SSH_PUBLIC_KEY" > $HOME/.ssh/$KEYNAME.pub
+chmod 600 $HOME/.ssh/$KEYNAME.pub
+

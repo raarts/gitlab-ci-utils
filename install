@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+# Installs these scripts into accessible locations
+
+mkdir -p ~/bin
+cp bin/* ~/bin
