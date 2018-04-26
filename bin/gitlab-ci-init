@@ -19,9 +19,9 @@ cat << _EOF_ > gitlab-ci/build
 #!/bin/sh
 set -e
 
-ci-build=\`which ci-build\`
+CI_BUILD=\`which ci-build\`
 
-. \`dirname \$ci-build\`/gitlab-ci-util.lib
+. \`dirname \$CI_BUILD\`/gitlab-ci-util.lib
 . \`dirname \$0\`/config
 
 standard_build
@@ -32,9 +32,9 @@ cat << _EOF_ > gitlab-ci/test
 #!/bin/sh
 set -e
 
-ci-build=\`which ci-build\`
+CI_BUILD=\`which ci-build\`
 
-. \`dirname \$ci-build\`/gitlab-ci-util.lib
+. \`dirname \$CI_BUILD\`/gitlab-ci-util.lib
 . \`dirname \$0\`/config
 
 # write your test here
