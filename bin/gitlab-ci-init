@@ -26,6 +26,7 @@ ci-build=\`which ci-build\`
 
 standard_build
 _EOF_
+chmod +x gitlab-ci/build
 
 cat << _EOF_ > gitlab-ci/test
 #!/bin/sh
@@ -39,4 +40,5 @@ ci-build=\`which ci-build\`
 # write your test here
 
 _EOF_
+chmod +x gitlab-ci/test
 
