@@ -3,7 +3,7 @@
 dir_contents_changed() {
   for arg
   do
-    # if the git exit-code is > 0 the tree changed. But in bash zero means true, hence the '!'
+    # if the git exit-code is > 0 the tree changed. But in shellcode zero means true, hence the '!'
     if ! git diff-tree --quiet --exit-code HEAD^:"$arg" HEAD:"$arg"
     then
       echo "$arg changed"
