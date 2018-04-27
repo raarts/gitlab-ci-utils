@@ -60,7 +60,11 @@ standard_build() {
       FROM=$from:$fromtag
     fi
     docker build  --build-arg FROM=$FROM -t $IMAGE .
-    echo $?
+    RESULT=$?
+    if [ $RESULT != 0 ]
+    then
+      exit $RESULT
+    fi
     docker push $IMAGE
   else
     echo "not rebuilding $me - nothing changed"
