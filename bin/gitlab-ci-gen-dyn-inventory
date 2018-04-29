@@ -1,0 +1,46 @@
+#!/bin/sh
+#
+
+if [ -z "$1" ]
+then
+  echo "usage: $0 <swarm dns name>"
+  exit 1
+fi
+
+mkdir -p inventory/production
+cat << _EOF_ > inventory/production/$1
+#!/usr/bin/env python
+#
+# This is not an ansible list of inventory hosts, but instead a script that generates one
+# ansible will know because this file has the executable bit set.
+#
+# This script will use it's OWN name as the name of the host to resolve to.
+# for each returned ip, it will do a reverse hostname lookup. It will
+# return all hostnames that are found this way.
+
+import socket, os
+import json
+
+hosts = []
+
+# find all ip addresses for my name
+host, alias, ipaddr = socket.gethostbyname_ex(os.path.basename(__file__))
+
+# create a list of reverse DNS lookups
+for ip in ipaddr:
+  try: 
+    hostname, aliaslist, ipaddrlist = socket.gethostbyaddr(ip)
+    hosts.append(hostname)
+  except:
+    pass
+
+# format into ansible JSON inventory format
+data = {
+   'hosts' : hosts
+}
+
+print(json.dumps(data, indent=2))
+_EOF_
+chmod +x inventory/production/$1
+
+echo "generated inventory/production/$1"
