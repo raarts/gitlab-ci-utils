@@ -1,5 +1,5 @@
 #!/bin/sh
-#set -x
+set -x
 
 . `dirname $0`/gitlab-ci-util.lib
 
