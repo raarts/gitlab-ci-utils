@@ -1,5 +1,5 @@
 #!/bin/sh
-set -x
+#set -x
 
 me=`basename $PWD`
 if [ -n "$1" ]
