@@ -39,6 +39,7 @@ standard_build() {
     else
       FROM=$from:$fromtag
     fi
+    echo "docker build  --build-arg FROM=$FROM -t $IMAGE ."
     docker build  --build-arg FROM=$FROM -t $IMAGE .
     exit $?
   fi
@@ -59,6 +60,7 @@ standard_build() {
     else 
       FROM=$from:$fromtag
     fi
+    echo "docker build  --build-arg FROM=$FROM -t $IMAGE ."
     docker build  --build-arg FROM=$FROM -t $IMAGE .
     RESULT=$?
     if [ $RESULT != 0 ]
