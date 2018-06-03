@@ -70,6 +70,8 @@ def main(args, loglevel):
 
 
 if __name__ == '__main__':
+  print(sys.version)
+  print('invoked as: %s' % str(sys.argv))
   parser = argparse.ArgumentParser( 
            description = "check if the given docker image exists in the gitlab docker repo",
            fromfile_prefix_chars = '@')
