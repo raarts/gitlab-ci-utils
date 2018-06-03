@@ -77,9 +77,12 @@ standard_build() {
     # indicate a successful build. 
     mkdir -p ../.lastbuild
     echo $CI_COMMIT_REF_NAME > ../.lastbuild/$me
+    whoami
+    printenv
+    git checkout -b ci_processing
     git add ../.lastbuild/$me
     git commit -m "`date -Iseconds` [skip ci]"
-    git push origin $CI_COMMIT_REF_NAME
+    git push origin ci_processing:${CI_COMMIT_REF_NAME} || true
 
     docker push $IMAGE
   else
