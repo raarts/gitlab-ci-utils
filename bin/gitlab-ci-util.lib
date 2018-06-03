@@ -6,11 +6,11 @@ dir_contents_changed() {
     # if the git exit-code is > 0 the tree changed. But in shellcode zero means true, hence the '!'
     if ! git diff-tree --quiet --exit-code "$CI_BUILD_BEFORE_SHA:$arg" "HEAD:$arg"
     then
-      echo "$arg changed between commit $PREV and HEAD"
+      echo "$arg changed between commit $CI_BUILD_BEFORE_SHA and $CI_COMMIT_SHA"
       return 0    # true
     fi
   done
-  echo "Nothing changed in" "$@"
+  echo "Nothing changed in" "$@" "between $CI_BUILD_BEFORE_SHA and $CI_COMMIT_SHA"
   return 1   # false
 }
 
