@@ -21,7 +21,12 @@ mkdir $HOME/.ssh
 chmod 700 $HOME/.ssh
 echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/$KEYNAME
 chmod 600 $HOME/.ssh/$KEYNAME
-echo "$SSH_PUBLIC_KEY" > $HOME/.ssh/$KEYNAME.pub
+if [ -n "$SSH_PUBLIC_KEY" ]
+then
+  echo "$SSH_PUBLIC_KEY" > $HOME/.ssh/$KEYNAME.pub
+else
+  ssh-keygen -f $HOME/.ssh/$KEYNAME -y > $HOME/.ssh/$KEYNAME.pub
+fi
 chmod 600 $HOME/.ssh/$KEYNAME.pub
 
 if [ -n "$SSH_KNOWN_HOSTS" ]
