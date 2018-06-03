@@ -3,14 +3,8 @@
 dir_contents_changed() {
   for arg
   do
-    if [ -f ../.lastbuild/$arg ]
-    then
-      PREV=`cat ../.lastbuild/$arg`
-    else
-      PREV="HEAD^"
-    fi
     # if the git exit-code is > 0 the tree changed. But in shellcode zero means true, hence the '!'
-    if ! git diff-tree --quiet --exit-code "$PREV:$arg" "HEAD:$arg"
+    if ! git diff-tree --quiet --exit-code "$CI_BUILD_BEFORE_SHA:$arg" "HEAD:$arg"
     then
       echo "$arg changed between commit $PREV and HEAD"
       return 0    # true
@@ -73,16 +67,6 @@ standard_build() {
     then
       exit $RESULT
     fi
-
-    # indicate a successful build. 
-    mkdir -p ../.lastbuild
-    echo $CI_COMMIT_REF_NAME > ../.lastbuild/$me
-    whoami
-    printenv
-    git checkout -b ci_processing
-    git add ../.lastbuild/$me
-    git commit -m "`date -Iseconds` [skip ci]"
-    git push origin ci_processing:${CI_COMMIT_REF_NAME} || true
 
     docker push $IMAGE
   else
