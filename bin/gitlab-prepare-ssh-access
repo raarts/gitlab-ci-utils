@@ -24,3 +24,9 @@ chmod 600 $HOME/.ssh/$KEYNAME
 echo "$SSH_PUBLIC_KEY" > $HOME/.ssh/$KEYNAME.pub
 chmod 600 $HOME/.ssh/$KEYNAME.pub
 
+if [ -n "$SSH_KNOWN_HOSTS" ]
+then
+  echo "$SSH_KNOWN_HOSTS" > $HOME/.ssh/known_hosts
+  chmod 600 $HOME/.ssh/known_hosts
+fi
+
