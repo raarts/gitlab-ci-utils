@@ -3,6 +3,11 @@ set -e
 
 for service in $*
 do
+  if [ ! -d $service ]
+  then
+    echo "No directory $service found - exit"
+    exit 1
+  fi
   cd $service
   [ -x gitlab-ci/deploy ] && gitlab-ci/deploy $service $ENV
   cd ..

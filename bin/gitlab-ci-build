@@ -5,6 +5,11 @@
 
 for service in $*
 do
+  if [ ! -d $service ]
+  then
+    echo "No directory $service found - exit"
+    exit 1
+  fi
   cd $service
   if [ -f gitlab-ci/config ]
   then
