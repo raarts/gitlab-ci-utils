@@ -33,13 +33,14 @@ standard_build() {
     # run by hand from the command line - just rebuild
     echo "manually rebuilding $me.."
     IMAGE=$LOGNAME/$me:$CI_COMMIT_REF_NAME
+    CI_PROJECT_NAME=`basename $GITROOT`
     if docker image inspect $LOGNAME/$from:$fromtag >/dev/null 2>&1
     then
       FROM=$LOGNAME/$from:$fromtag
     else
       FROM=$from:$fromtag
     fi
-    echo "docker build  --build-arg FROM=$FROM -t $IMAGE ."
+    echo "docker build  --build-arg FROM=$FROM CI_PROJECT_NAME=$CI_PROJECT_NAME -t $IMAGE ."
     docker build  --build-arg FROM=$FROM -t $IMAGE .
     exit $?
   fi
