@@ -5,18 +5,13 @@
 
 for service in $*
 do
-  if [ ! -d $service ]
+  if [ -x $service/gitlab-ci/build ]
   then
-    echo "No directory $service found - exit"
-    exit 1
-  fi
-  cd $service
-  if [ -f gitlab-ci/config ]
-  then
-    standard_build 
+    cd $service
+    gitlab-ci/build
+    cd ..
   else
-    gitlab-ci/build $service
+    echo "$service/gitlab-ci/build not executable - skipping build of $service"
   fi
-  cd ..
 done
 
