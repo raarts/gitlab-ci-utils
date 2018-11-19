@@ -18,7 +18,6 @@ except ImportError:
   from urlparse import urlparse
   from urllib import quote
 
-
 # main module. 
 def main(args, loglevel):
   log.basicConfig(format="%(filename)s[%(lineno)d]: %(levelname)s %(message)s", level=loglevel, stream=sys.stdout)
@@ -45,6 +44,12 @@ def main(args, loglevel):
   authurl = realm + '?account=' + quote(args.username) + '&scope=' + quote('repository:' + basepath + ':pull') + '&service=container_registry'
   log.info('get token using: ' + authurl)
   r = requests.get(authurl, auth=(args.username, args.password), verify=False)
+  if r.status_code != 200:
+    log.error('Result: ' + str(r.status_code))
+    exit(1)
+  if not 'token' in r.json():
+    log.error('token not found')
+    exit(1)
   token = r.json()['token']
 
   repourl = v2url + basepath + '/manifests/' + tag
