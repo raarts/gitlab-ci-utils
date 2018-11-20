@@ -1,15 +1,15 @@
 #!/bin/bash
+#set -x
 set -e
 
 for service in $*
 do
-  if [ ! -d $service ]
+  if [ -x $service/gitlab-ci/deploy ]
   then
-    echo "No directory $service found - exit"
-    exit 1
+    cd $service
+    gitlab-ci/deploy $service $ENV
+    cd ..
+  else
+    echo "$service/gitlab-ci/deploy not executable - skipping deploying $service in $ENV"
   fi
-  cd $service
-  [ -x gitlab-ci/deploy ] && gitlab-ci/deploy $service $ENV
-  cd ..
 done
-

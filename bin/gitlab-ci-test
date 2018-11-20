@@ -1,11 +1,12 @@
 #!/bin/bash
 # set -x
+set -e
 
 . `dirname $0`/gitlab-ci-util.lib
 
 for service in $*
 do
-  if [ -f $service/gitlab-ci/test ]
+  if [ -x $service/gitlab-ci/test ]
   then
     cd $service
     gitlab-ci/test
