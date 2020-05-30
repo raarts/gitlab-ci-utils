@@ -61,8 +61,10 @@ standard_build() {
     else 
       FROM=$from:$fromtag
     fi
-    echo "docker build --build-arg FROM=$FROM -t $IMAGE:$CI_COMMIT_REF_NAME $* ."
-    docker build --build-arg FROM=$FROM -t $IMAGE:$CI_COMMIT_REF_NAME $* .
+    echo "docker pull $CI_REGISTRY_IMAGE:latest || true"
+    docker pull $IMAGE:latest || true
+    echo "docker build --cache-from $IMAGE:latest --build-arg FROM=$FROM -t $IMAGE:$CI_COMMIT_REF_NAME -t $IMAGE:latest $* ."
+    docker build --cache-from $IMAGE:latest --build-arg FROM=$FROM -t $IMAGE:$CI_COMMIT_REF_NAME -t $IMAGE:latest $* .
     RESULT=$?
     if [ $RESULT != 0 ]
     then
@@ -70,6 +72,7 @@ standard_build() {
     fi
 
     docker push $IMAGE:$CI_COMMIT_REF_NAME
+    docker push $IMAGE:latest
   else
     echo "not rebuilding $me - nothing changed"
   fi
