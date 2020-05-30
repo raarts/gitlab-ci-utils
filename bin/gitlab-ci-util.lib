@@ -32,7 +32,7 @@ standard_build() {
   then
     # run by hand from the command line - just rebuild
     echo "manually rebuilding $me.."
-    IMAGE=$LOGNAME/$me:$CI_COMMIT_REF_NAME
+    IMAGE=$LOGNAME/$me
     CI_PROJECT_NAME=`basename $GITROOT`
     if docker image inspect $LOGNAME/$from:$fromtag >/dev/null 2>&1
     then
@@ -40,15 +40,15 @@ standard_build() {
     else
       FROM=$from:$fromtag
     fi
-    echo "docker build --build-arg FROM=$FROM CI_PROJECT_NAME=$CI_PROJECT_NAME -t $IMAGE $* ."
-    docker build --build-arg FROM=$FROM -t $IMAGE $* .
+    echo "docker build --build-arg FROM=$FROM CI_PROJECT_NAME=$CI_PROJECT_NAME -t $IMAGE:$CI_COMMIT_REF_NAME $* ."
+    docker build --build-arg FROM=$FROM -t $IMAGE:$CI_COMMIT_REF_NAME $* .
     exit $?
   fi
 
   # ok, now check if we need to rebuild this image
-  IMAGE=$CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/$me:$CI_COMMIT_REF_NAME
+  IMAGE=$CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/$me
 
-  if ! gitlab-image-exists -u gitlab-ci-token -p $CI_JOB_TOKEN $IMAGE || dir_contents_changed $me $deps
+  if ! gitlab-image-exists -u gitlab-ci-token -p $CI_JOB_TOKEN $IMAGE:$CI_COMMIT_REF_NAME || dir_contents_changed $me $deps
   then
     echo "$me changed - rebuilding.."
     if [ `basename $from:$fromtag` == "$from:$fromtag" ]
@@ -61,15 +61,15 @@ standard_build() {
     else 
       FROM=$from:$fromtag
     fi
-    echo "docker build --build-arg FROM=$FROM -t $IMAGE $* ."
-    docker build --build-arg FROM=$FROM -t $IMAGE $* .
+    echo "docker build --build-arg FROM=$FROM -t $IMAGE:$CI_COMMIT_REF_NAME $* ."
+    docker build --build-arg FROM=$FROM -t $IMAGE:$CI_COMMIT_REF_NAME $* .
     RESULT=$?
     if [ $RESULT != 0 ]
     then
       exit $RESULT
     fi
 
-    docker push $IMAGE
+    docker push $IMAGE:$CI_COMMIT_REF_NAME
   else
     echo "not rebuilding $me - nothing changed"
   fi
