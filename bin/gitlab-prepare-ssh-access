@@ -19,7 +19,7 @@ KEYNAME=$1
 echo "Installing SSH keys into $HOME"
 mkdir $HOME/.ssh
 chmod 700 $HOME/.ssh
-echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/$KEYNAME
+echo "$SSH_PRIVATE_KEY" | base64 -d > $HOME/.ssh/$KEYNAME
 chmod 600 $HOME/.ssh/$KEYNAME
 if [ -n "$SSH_PUBLIC_KEY" ]
 then
